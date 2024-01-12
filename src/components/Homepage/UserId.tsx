@@ -1,38 +1,11 @@
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+"use client";
+
+import useUser from "@/hooks/useUser";
 
 const UserId = () => {
-  const session: any = useSession();
-  const [profile, setProfile] = useState<any>({});
+  const { user, userLoading } = useUser();
 
-  useEffect(() => {
-    const fetchAllSpaces = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5006/api/Authentication/GetTokenUser",
-          {
-            headers: {
-              Authorization: `Bearer ${session.data?.token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        setProfile(data);
-      } catch (error) {}
-    };
-
-    if (session.data?.token) {
-      fetchAllSpaces();
-    }
-
-    return () => {
-      setProfile({});
-    };
-  }, [session.data?.token]);
-
-  return <div>User Id: {profile?.userId}</div>;
+  return <div>User Id: {userLoading ? "Loading..." : user?.userId}</div>;
 };
 
 export default UserId;

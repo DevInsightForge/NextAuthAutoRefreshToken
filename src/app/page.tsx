@@ -1,43 +1,9 @@
-"use client";
-
 import UserEmail from "@/components/Homepage/UserEmail";
 import UserId from "@/components/Homepage/UserId";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const session: any = useSession();
-  const [profile, setProfile] = useState<any>({});
-
-  useEffect(() => {
-    const fetchAllSpaces = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5006/api/Authentication/GetTokenUser",
-          {
-            headers: {
-              Authorization: `Bearer ${session.data?.token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        setProfile(data);
-      } catch (error) {}
-    };
-
-    if (session.data?.token) {
-      fetchAllSpaces();
-    }
-
-    return () => {
-      setProfile({});
-    };
-  }, [session.data?.token]);
-
   return (
     <main className={styles.main}>
       <div className={styles.description}>
@@ -78,8 +44,6 @@ export default function Home() {
       <div>
         <UserId />
         <UserEmail />
-        <br></br>
-        <div>{JSON.stringify(profile)}</div>
       </div>
     </main>
   );
