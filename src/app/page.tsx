@@ -16,7 +16,7 @@ export default function Home() {
           "http://localhost:5006/api/Authentication/GetTokenUser",
           {
             headers: {
-              Authorization: `Bearer ${session.data?.accessToken}`,
+              Authorization: `Bearer ${session.data?.token}`,
             },
           }
         );
@@ -27,14 +27,14 @@ export default function Home() {
       } catch (error) {}
     };
 
-    if (session.data?.accessToken) {
+    if (session.data?.token) {
       fetchAllSpaces();
     }
 
     return () => {
       setProfile({});
     };
-  }, [session.data?.accessToken]);
+  }, [session.data?.token]);
 
   return (
     <main className={styles.main}>

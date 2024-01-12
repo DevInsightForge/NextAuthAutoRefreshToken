@@ -28,10 +28,7 @@ async function refreshAccessToken(token: any) {
       ...refreshedTokens,
     };
   } catch (error) {
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
+    return token;
   }
 }
 
@@ -103,8 +100,7 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }: any) {
-      session.accessToken = token.accessToken;
-      session.error = token.error;
+      session.token = token.accessToken;
 
       return session;
     },
