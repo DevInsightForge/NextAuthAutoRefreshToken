@@ -1,5 +1,5 @@
+import SigninButton from "@/components/Homepage/SigninButton";
 import UserEmail from "@/components/Homepage/UserEmail";
-import UserId from "@/components/Homepage/UserId";
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -41,8 +41,12 @@ export default function Home() {
         />
       </div>
 
-      <div>
-        <UserId />
+      <div
+        style={{
+          zIndex: 111,
+        }}
+      >
+        <SigninButton />
         <UserEmail />
       </div>
     </main>

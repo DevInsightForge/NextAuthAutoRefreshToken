@@ -2,7 +2,7 @@
 const nextConfig = {
   env: {
     NEXTAUTH_SECRET: "defaultSecret",
-    NEXTAUTH_URL: "http://localhost:3000",
+    NEXTAUTH_URL: "http://localhost:3020",
   },
 };
 

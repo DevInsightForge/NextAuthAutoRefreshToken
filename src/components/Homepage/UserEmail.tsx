@@ -1,13 +1,12 @@
 "use client";
 
-import useUser from "@/hooks/useUser";
+import { useSession } from "next-auth/react";
 
 const UserEmail = () => {
-  const { user, userLoading, session } = useUser();
+  const { data, status } = useSession();
+  const isLoading = status === "loading";
 
-  return (
-    <div>User Email: {userLoading ? "Loading..." : user?.email || session}</div>
-  );
+  return <div>User Email: {isLoading ? "Loading..." : data?.user?.email}</div>;
 };
 
 export default UserEmail;
