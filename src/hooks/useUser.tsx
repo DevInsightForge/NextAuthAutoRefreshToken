@@ -17,6 +17,7 @@ const useUser = () => {
             headers: {
               Authorization: `Bearer ${session.data?.token}`,
             },
+            cache: "no-store",
           }
         );
 

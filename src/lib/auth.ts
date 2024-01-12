@@ -95,12 +95,10 @@ export const authOptions: AuthOptions = {
         return refreshAccessToken(token);
       }
 
-      return {};
+      throw Error("Tokens are expired or not valid");
     },
     async session({ session, token }: any) {
-      if (!token?.accessToken) throw Error("No access token found");
-
-      session.token = token.accessToken;
+      session.token = token?.accessToken;
       return session;
     },
   },
