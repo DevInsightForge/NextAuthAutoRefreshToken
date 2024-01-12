@@ -1,5 +1,7 @@
 "use client";
 
+import UserEmail from "@/components/Homepage/UserEmail";
+import UserId from "@/components/Homepage/UserId";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -7,7 +9,7 @@ import styles from "./page.module.css";
 
 export default function Home() {
   const session: any = useSession();
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState<any>({});
 
   useEffect(() => {
     const fetchAllSpaces = async () => {
@@ -74,6 +76,9 @@ export default function Home() {
       </div>
 
       <div>
+        <UserId />
+        <UserEmail />
+        <br></br>
         <div>{JSON.stringify(profile)}</div>
       </div>
     </main>
