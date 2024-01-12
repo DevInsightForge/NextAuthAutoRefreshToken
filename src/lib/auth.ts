@@ -98,7 +98,7 @@ export const authOptions: AuthOptions = {
       return {};
     },
     async session({ session, token }: any) {
-      if (!token?.accessToken) return {};
+      if (!token?.accessToken) throw Error("No access token found");
 
       session.token = token.accessToken;
       return session;
