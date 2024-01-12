@@ -18,16 +18,17 @@ async function refreshAccessToken(token: any) {
 
     const refreshedTokens = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || !refreshedTokens) {
       throw refreshedTokens;
     }
+
     console.log("RefreshedTokenOn: " + new Date().toLocaleString());
 
     return {
       ...token,
       ...refreshedTokens,
     };
-  } catch (error) {
+  } catch (_) {
     return token;
   }
 }
@@ -62,14 +63,11 @@ export const authOptions: AuthOptions = {
 
         const tokens = await response.json();
 
-        if (tokens) {
-          return tokens;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
+        if (!response.ok || !tokens) {
           return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
         }
+
+        return tokens;
       },
     }),
   ],
@@ -97,11 +95,12 @@ export const authOptions: AuthOptions = {
         return refreshAccessToken(token);
       }
 
-      return token;
+      return {};
     },
     async session({ session, token }: any) {
-      session.token = token.accessToken;
+      if (!token?.accessToken) return {};
 
+      session.token = token.accessToken;
       return session;
     },
   },

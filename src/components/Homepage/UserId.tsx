@@ -3,9 +3,11 @@
 import useUser from "@/hooks/useUser";
 
 const UserId = () => {
-  const { user, userLoading } = useUser();
+  const { user, userLoading, session } = useUser();
 
-  return <div>User Id: {userLoading ? "Loading..." : user?.userId}</div>;
+  return (
+    <div>User Id: {userLoading ? "Loading..." : user?.userId || session}</div>
+  );
 };
 
 export default UserId;

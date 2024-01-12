@@ -30,6 +30,8 @@ const useUser = () => {
 
     if (session.data?.token) {
       fetchAllSpaces();
+    } else {
+      setIsLoading(false);
     }
 
     return () => {
@@ -40,6 +42,7 @@ const useUser = () => {
   return {
     user: profile,
     userLoading: isLoading,
+    session: session?.status,
   };
 };
 
