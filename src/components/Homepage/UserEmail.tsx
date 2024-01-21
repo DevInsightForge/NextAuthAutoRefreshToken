@@ -10,7 +10,7 @@ const UserEmail = () => {
   useEffect(() => {
     const getProfile = async () => {
       const res = await fetch(
-        "http://localhost:44304/api/User/GetUserInfobyToken",
+        `${process.env.NEXT_PUBLIC_BACKEND ?? ""}/api/User/GetUserInfobyToken`,
         {
           headers: {
             Authorization: `Bearer ${data?.token}`,
@@ -38,7 +38,9 @@ const UserEmail = () => {
   return (
     <div>
       <div>User Email: {isLoading ? "Loading..." : data?.user?.email}</div>
-      <div>{JSON.stringify(profile)}</div>
+      <div>
+        <pre>{JSON.stringify(profile, null, 2)}</pre>
+      </div>
     </div>
   );
 };

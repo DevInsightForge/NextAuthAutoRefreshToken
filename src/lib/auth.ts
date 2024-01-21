@@ -1,10 +1,9 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const AUTH_API_URL = "http://localhost:44304/api/Login";
-
+const AUTH_API_URL = process.env.NEXT_PUBLIC_BACKEND ?? "";
 const getTokenWithCredentials = async ({ email, password }: any) => {
-  const response = await fetch(`${AUTH_API_URL}/user-login`, {
+  const response = await fetch(`${AUTH_API_URL}/api/Login/user-login`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -25,7 +24,7 @@ const getTokenWithCredentials = async ({ email, password }: any) => {
 };
 
 const getRefreshedTokens = async (refreshToken: string): Promise<any> => {
-  const resp = await fetch(`${AUTH_API_URL}/refresh-token`, {
+  const resp = await fetch(`${AUTH_API_URL}/api/Login/refresh-token`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -47,14 +46,18 @@ const getRefreshedTokens = async (refreshToken: string): Promise<any> => {
 };
 
 const convertTokensFromResponse = (data: any) => {
-  return {
+  console.log(new Date(data?.jwtExpires).toUTCString());
+
+  const payload = {
     accessToken: data?.jwtToken,
     accessTokenExpiresAt:
-      new Date(data?.jwtExpires.slice(0, 19)).getTime() - 1 * 40 * 1000,
+      new Date(data?.jwtExpires.slice(0, 19)).getTime() - 1 * 55 * 1000,
     refreshToken: data?.refreshToken,
     refreshTokenExpiresAt:
       new Date(data?.refreshExpires.slice(0, 19)).getTime() - 5 * 60 * 1000,
   };
+
+  return payload;
 };
 
 export const authOptions: AuthOptions = {
@@ -82,7 +85,7 @@ export const authOptions: AuthOptions = {
           case "credentials":
             const serverTokens = convertTokensFromResponse(user);
 
-            return Promise.resolve({ ...token, ...serverTokens });
+            return { ...token, ...serverTokens };
 
           default:
             throw Error("Account or user is not valid");
@@ -92,7 +95,7 @@ export const authOptions: AuthOptions = {
       // Return previous token if the access token has not expired yet
       const now = Date.now();
       if (now < token.accessTokenExpiresAt) {
-        return Promise.resolve(token);
+        return token;
       }
 
       // Access token has expired, try to update it
@@ -101,9 +104,9 @@ export const authOptions: AuthOptions = {
           const response = await getRefreshedTokens(token.refreshToken);
           const refreshedTokens = convertTokensFromResponse(response);
 
-          return Promise.resolve({ ...token, ...refreshedTokens });
+          return { ...token, ...refreshedTokens };
         } catch (_) {
-          return Promise.resolve(token);
+          return token;
         }
       }
 
@@ -113,7 +116,7 @@ export const authOptions: AuthOptions = {
       session.token = token?.accessToken;
       session.user.email = token?.userEmail;
 
-      return Promise.resolve(session);
+      return session;
     },
   },
 };
