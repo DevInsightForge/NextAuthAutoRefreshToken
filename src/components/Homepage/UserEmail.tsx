@@ -6,12 +6,14 @@ import useSessionToken from "@/hooks/useSessionToken";
 import { useEffect, useState } from "react";
 
 const UserEmail = () => {
-  const { token, user, loading } = useSessionToken();
+  const token = useSessionToken();
   const [profile, setProfile] = useState({});
-
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getProfile = async () => {
+      setIsLoading(true);
+      setProfile({});
       const res = await fetch(
         API_SERVER_BASE_URL + USER_API.GET_USER_BY_TOKEN,
         {
@@ -25,6 +27,7 @@ const UserEmail = () => {
       if (res?.ok && !!response?.data) {
         setProfile(response?.data);
       }
+      setIsLoading(false);
     };
 
     if (token) {
@@ -38,9 +41,13 @@ const UserEmail = () => {
 
   return (
     <div>
-      <div>User Email: {loading ? "Loading..." : user?.email}</div>
+      <div>User Profile:</div>
       <div>
-        <pre>{JSON.stringify(profile, null, 2)}</pre>
+        {isLoading ? (
+          "Loading.."
+        ) : (
+          <pre>{JSON.stringify(profile, null, 2)}</pre>
+        )}
       </div>
     </div>
   );

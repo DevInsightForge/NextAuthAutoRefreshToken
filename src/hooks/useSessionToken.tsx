@@ -4,26 +4,16 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 const useSessionToken = () => {
-  const { data, status } = useSession();
+  const { data } = useSession();
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (data?.token) {
-      setAccessToken(data.token);
-    }
-
-    return () => {
-      setAccessToken(null);
-    };
+    setAccessToken((prev) =>
+      data?.token && data.token !== prev ? data.token : prev
+    );
   }, [data?.token]);
 
-  console.log(data);
-
-  return {
-    token: accessToken,
-    user: data?.user,
-    loading: status === "loading",
-  };
+  return accessToken;
 };
 
 export default useSessionToken;
