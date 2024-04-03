@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 const useSessionToken = () => {
-  const { data } = useSession();
+  const { data, status } = useSession();
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const useSessionToken = () => {
     );
   }, [data?.token]);
 
-  return accessToken;
+  return { token: accessToken, loading: status === "loading" };
 };
 
 export default useSessionToken;

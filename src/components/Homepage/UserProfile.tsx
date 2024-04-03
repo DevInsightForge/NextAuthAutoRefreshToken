@@ -5,8 +5,8 @@ import { API_SERVER_BASE_URL } from "@/constants/environments";
 import useSessionToken from "@/hooks/useSessionToken";
 import { useEffect, useState } from "react";
 
-const UserEmail = () => {
-  const token = useSessionToken();
+const UserProfile = () => {
+  const { token, loading } = useSessionToken();
   const [profile, setProfile] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,7 +46,7 @@ const UserEmail = () => {
     <div>
       <div>User Profile:</div>
       <div>
-        {isLoading ? (
+        {isLoading || loading ? (
           "Loading.."
         ) : (
           <pre>{JSON.stringify(profile, null, 2)}</pre>
@@ -56,4 +56,4 @@ const UserEmail = () => {
   );
 };
 
-export default UserEmail;
+export default UserProfile;

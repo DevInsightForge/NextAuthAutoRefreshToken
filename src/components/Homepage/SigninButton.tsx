@@ -1,21 +1,21 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import useSessionToken from "@/hooks/useSessionToken";
+import { signIn, signOut } from "next-auth/react";
 
 const SigninButton = () => {
-  const { data } = useSession();
+  const { token, loading } = useSessionToken();
 
   return (
     <div>
-      {data ? (
-        <>
-          Change account? <br />
-          <button onClick={() => signOut()}>Sign Out</button>
-        </>
+      {loading ? (
+        <p>Loading...</p>
       ) : (
         <>
-          Not signed in <br />
-          <button onClick={() => signIn()}>Sign in</button>
+          {token ? "Change account?" : "Not signed in"} <br />
+          <button onClick={() => (token ? signOut() : signIn())}>
+            Sign {token ? "Out" : "In"}
+          </button>
         </>
       )}
     </div>

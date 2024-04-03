@@ -1,5 +1,5 @@
 import SigninButton from "@/components/Homepage/SigninButton";
-import UserEmail from "@/components/Homepage/UserEmail";
+import UserProfile from "@/components/Homepage/UserProfile";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
     <main className={styles.main}>
       <div>
         <SigninButton />
-        <UserEmail />
+        <UserProfile />
       </div>
     </main>
   );
