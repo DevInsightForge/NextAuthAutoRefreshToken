@@ -11,32 +11,35 @@ const UserEmail = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!token) {
+      setProfile({});
+      setIsLoading(false);
+      return;
+    }
+
     const getProfile = async () => {
       setIsLoading(true);
-      setProfile({});
-      const res = await fetch(
-        API_SERVER_BASE_URL + USER_API.GET_USER_BY_TOKEN,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      try {
+        const response = await fetch(
+          `${API_SERVER_BASE_URL}${USER_API.GET_USER_BY_TOKEN}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await response.json();
+        if (response.ok && data?.data) {
+          setProfile(data.data);
+        } else {
+          setProfile({});
         }
-      );
-
-      const response = await res.json();
-      if (res?.ok && !!response?.data) {
-        setProfile(response?.data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        setProfile({});
       }
       setIsLoading(false);
     };
 
-    if (token) {
-      getProfile();
-    }
-
-    return () => {
-      setProfile({});
-    };
+    getProfile();
   }, [token]);
 
   return (

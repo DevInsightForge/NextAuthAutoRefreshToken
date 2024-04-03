@@ -5,13 +5,13 @@ import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 //#region Internal Auth Server Operations
-interface ICredentialResponse extends ILoginResponse {
+interface IUserCredential extends ILoginResponse {
   id: string;
 }
 
 const getTokenWithCredentials = async (
   credentials: Record<"email" | "password", string>
-): Promise<ICredentialResponse> => {
+): Promise<IUserCredential> => {
   const response = await fetch(API_SERVER_BASE_URL + AUTH_API.SIGNIN_USER, {
     headers: {
       "Content-Type": "application/json",
@@ -23,7 +23,7 @@ const getTokenWithCredentials = async (
   const {
     data: authenticatedUser,
     message,
-  }: INetworkResponse<ICredentialResponse> = await response.json();
+  }: INetworkResponse<IUserCredential> = await response.json();
 
   if (!response.ok || !authenticatedUser) {
     throw new Error(message ?? "Failed to authenticate user");
@@ -35,7 +35,7 @@ const getTokenWithCredentials = async (
 
 const getRefreshedTokens = async (
   refreshToken: string
-): Promise<ICredentialResponse> => {
+): Promise<IUserCredential> => {
   const response = await fetch(
     API_SERVER_BASE_URL + AUTH_API.REFRESH_ACCESS_TOKEN,
     {
@@ -49,10 +49,8 @@ const getRefreshedTokens = async (
     }
   );
 
-  const {
-    data: refreshedTokens,
-    message,
-  }: INetworkResponse<ICredentialResponse> = await response.json();
+  const { data: refreshedTokens, message }: INetworkResponse<IUserCredential> =
+    await response.json();
 
   if (!response.ok || !refreshedTokens) {
     throw new Error(message ?? "Failed to refresh token");
@@ -61,7 +59,7 @@ const getRefreshedTokens = async (
   return refreshedTokens;
 };
 
-const convertTokensFromResponse = (data: ICredentialResponse): JWT => {
+const convertTokensFromResponse = (data: IUserCredential): JWT => {
   const payload: JWT = {
     accessToken: data?.jwtToken,
     // accessTokenExpiresAt:
@@ -85,14 +83,9 @@ export const authOptions: AuthOptions = {
         email: { label: "Email", type: "email", placeholder: "jsmith" },
         password: { label: "Password", type: "password" },
       },
-      authorize: async (credentials): Promise<ICredentialResponse | null> => {
-        try {
-          if (!credentials) throw credentials;
-          return await getTokenWithCredentials(credentials);
-        } catch (err: any) {
-          console.log(err?.message);
-          return null;
-        }
+      authorize: async (credentials): Promise<IUserCredential | null> => {
+        if (!credentials) return null;
+        return await getTokenWithCredentials(credentials).catch(() => null);
       },
     }),
   ],
@@ -102,11 +95,10 @@ export const authOptions: AuthOptions = {
       if (account && user) {
         switch (account?.provider) {
           case "credentials":
-            const serverTokens = convertTokensFromResponse(
-              user as ICredentialResponse
-            );
-
-            return { ...token, ...serverTokens };
+            return {
+              ...token,
+              ...convertTokensFromResponse(user as IUserCredential),
+            };
 
           default:
             throw Error("Account or user is not valid");
@@ -115,29 +107,21 @@ export const authOptions: AuthOptions = {
 
       // Return previous token if the access token has not expired yet
       const now = Date.now();
-      if (now < token.accessTokenExpiresAt) {
-        return token;
-      }
+      if (now < token.accessTokenExpiresAt) return token;
 
       // Access token has expired, try to update it
       if (now < token.refreshTokenExpiresAt) {
-        try {
-          const response = await getRefreshedTokens(token.refreshToken);
-          const refreshedTokens = convertTokensFromResponse(response);
-
-          console.log("Credential Refresh On: " + new Date().toLocaleString());
-          return { ...token, ...refreshedTokens };
-        } catch (_) {
-          return token;
-        }
+        return await getRefreshedTokens(token.refreshToken)
+          .then(convertTokensFromResponse)
+          .then((refreshedTokens) => ({ ...token, ...refreshedTokens }))
+          .catch(() => token);
       }
 
-      throw Error("Tokens are expired or not valid");
+      throw new Error("Tokens expired");
     },
     session: async ({ session, token }) => {
       session.token = token?.accessToken;
       session.user.email = token?.email || "";
-
       return session;
     },
   },
