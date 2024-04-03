@@ -1,19 +1,22 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { USER_API } from "@/constants/endpoints";
+import { API_SERVER_BASE_URL } from "@/constants/environments";
+import useSessionToken from "@/hooks/useSessionToken";
 import { useEffect, useState } from "react";
 
 const UserEmail = () => {
-  const { data, status }: any = useSession();
+  const { token, user, loading } = useSessionToken();
   const [profile, setProfile] = useState({});
+
 
   useEffect(() => {
     const getProfile = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND ?? ""}/api/User/GetUserInfobyToken`,
+        API_SERVER_BASE_URL + USER_API.GET_USER_BY_TOKEN,
         {
           headers: {
-            Authorization: `Bearer ${data?.token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -24,20 +27,18 @@ const UserEmail = () => {
       }
     };
 
-    if (data?.token) {
+    if (token) {
       getProfile();
     }
 
     return () => {
       setProfile({});
     };
-  }, [data?.token]);
-
-  const isLoading = status === "loading";
+  }, [token]);
 
   return (
     <div>
-      <div>User Email: {isLoading ? "Loading..." : data?.user?.email}</div>
+      <div>User Email: {loading ? "Loading..." : user?.email}</div>
       <div>
         <pre>{JSON.stringify(profile, null, 2)}</pre>
       </div>
